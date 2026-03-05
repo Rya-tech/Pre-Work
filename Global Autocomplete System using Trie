@@ -1,0 +1,54 @@
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_word = False
+        self.top_suggestions = []
+
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+        self.freq = {}
+
+    def insert(self, word):
+        self.freq[word] = self.freq.get(word, 0) + 1
+        node = self.root
+
+        for char in word:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+
+            node = node.children[char]
+            self.update_top(node, word)
+
+        node.is_word = True
+
+    def update_top(self, node, word):
+        if word not in node.top_suggestions:
+            node.top_suggestions.append(word)
+
+        node.top_suggestions.sort(key=lambda x: self.freq[x], reverse=True)
+
+        if len(node.top_suggestions) > 5:
+            node.top_suggestions.pop()
+
+    def search(self, prefix):
+        node = self.root
+
+        for char in prefix:
+            if char not in node.children:
+                return []
+
+            node = node.children[char]
+
+        return node.top_suggestions
+
+
+trie = Trie()
+
+words = ["app", "apple", "application", "apply", "appoint", "app", "app"]
+
+for w in words:
+    trie.insert(w)
+
+print(trie.search("app"))
